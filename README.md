@@ -8,13 +8,13 @@ bun run dev:buddy      # 启动 CLI
 ```bash
 目前可用的 /buddy 子命令有：
 
-  - /buddy hatch
+  - /buddy hatch    #领养宠物
   - /buddy card
-  - /buddy pet
+  - /buddy pet      #互动
   - /buddy mute
   - /buddy unmute
-  - /buddy reset
-  - /buddy reroll
+  - /buddy reset    #放生宠物,需要用hatch重新领养
+  - /buddy reroll   #直接重新换宠物
 
 ```  
 
