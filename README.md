@@ -112,7 +112,7 @@ bun run dev:buddy      # 启动 CLI
 
 | 命令 | 功能 | 开关 |
 |------|------|------|
-| `/buddy` | 宠物系统 | `BUDDY` |
+| `/buddy` | 电子宠物，支持 hatch/card/pet/mute/unmute/reset/reroll | `BUDDY` |
 | `/proactive` | 主动自主模式 | `PROACTIVE` / `KAIROS` |
 | `/assistant` | 助手模式 | `KAIROS` |
 | `/brief` | 简报模式 | `KAIROS` / `KAIROS_BRIEF` |

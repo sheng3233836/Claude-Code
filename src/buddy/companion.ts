@@ -121,13 +121,18 @@ export function companionUserId(): string {
   return config.oauthAccount?.accountUuid ?? config.userID ?? 'anon'
 }
 
+function rollForStoredCompanion(stored: NonNullable<ReturnType<typeof getGlobalConfig>['companion']>): Roll {
+  const userId = companionUserId()
+  return stored.seed ? rollWithSeed(`${userId}:${stored.seed}`) : roll(userId)
+}
+
 // Regenerate bones from userId, merge with stored soul. Bones never persist
 // so species renames and SPECIES-array edits can't break stored companions,
 // and editing config.companion can't fake a rarity.
 export function getCompanion(): Companion | undefined {
   const stored = getGlobalConfig().companion
   if (!stored) return undefined
-  const { bones } = roll(companionUserId())
+  const { bones } = rollForStoredCompanion(stored)
   // bones last so stale bones fields in old-format configs get overridden
   return { ...stored, ...bones }
 }

@@ -12,7 +12,7 @@ Claude Code 中有大量未公开的斜杠命令、CLI 参数和环境变量。
 
 | 命令 | 编译开关 | 功能 |
 |------|---------|------|
-| `/buddy` | `BUDDY` | 宠物伴侣系统 |
+| `/buddy` | `BUDDY` | 宠物伴侣系统，支持 `hatch` / `card` / `pet` / `mute` / `unmute` / `reset` / `reroll` |
 | `/proactive` | `PROACTIVE` / `KAIROS` | 主动自主模式 |
 | `/assistant` | `KAIROS` | 持久助手模式 |
 | `/brief` | `KAIROS` / `KAIROS_BRIEF` | 简报模式 |

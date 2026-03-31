@@ -3,6 +3,7 @@ import { feature } from 'bun:bundle';
 import React, { useEffect } from 'react';
 import { useNotifications } from '../context/notifications.js';
 import { Text } from '../ink.js';
+import { Box } from '../ink.js';
 import { getGlobalConfig } from '../utils/config.js';
 import { getRainbowColor } from '../utils/thinking.js';
 
@@ -35,6 +36,23 @@ function RainbowText(t0) {
   return t1;
 }
 
+function BuddyTeaser() {
+  return <Box flexDirection="column">
+      <RainbowText text="/buddy hatch" />
+      <Text dimColor={true}>Launch week: April 1-7, 2026</Text>
+      <Text dimColor={true}>Something small has been pacing beside the prompt.</Text>
+      <Text dimColor={true}>Type `/buddy hatch` to see who was waiting.</Text>
+    </Box>;
+}
+
+function BuddyLiveHint() {
+  return <Box flexDirection="column">
+      <Text color="claude">/buddy hatch</Text>
+      <Text dimColor={true}>BUDDY is live.</Text>
+      <Text dimColor={true}>Hatch your terminal companion and keep it by the input bar.</Text>
+    </Box>;
+}
+
 // Rainbow /buddy teaser shown on startup when no companion hatched yet.
 // Idle presence and reactions are handled by CompanionSprite directly.
 function _temp(ch, i) {
@@ -54,14 +72,14 @@ export function useBuddyNotification() {
         return;
       }
       const config = getGlobalConfig();
-      if (config.companion || !isBuddyTeaserWindow()) {
+      if (config.companion) {
         return;
       }
       addNotification({
         key: "buddy-teaser",
-        jsx: <RainbowText text="/buddy" />,
+        jsx: isBuddyTeaserWindow() ? <BuddyTeaser /> : isBuddyLive() ? <BuddyLiveHint /> : <RainbowText text="/buddy" />,
         priority: "immediate",
-        timeoutMs: 15000
+        timeoutMs: isBuddyTeaserWindow() ? 15000 : 10000
       });
       return () => removeNotification("buddy-teaser");
     };

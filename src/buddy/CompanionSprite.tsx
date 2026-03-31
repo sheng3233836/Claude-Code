@@ -25,6 +25,10 @@ const IDLE_SEQUENCE = [0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2, 0, 0, 0];
 // Hearts float up-and-out over 5 ticks (~2.5s). Prepended above the sprite.
 const H = figures.heart;
 const PET_HEARTS = [`   ${H}    ${H}   `, `  ${H}  ${H}   ${H}  `, ` ${H}   ${H}  ${H}   `, `${H}  ${H}      ${H} `, '·    ·   ·  '];
+const SHINY_AURAS = ['   ✦    ✦    ', '    ✦  ✦     ', '  ✦      ✦   '];
+const RARE_AURAS = ['     . .     ', '    .   .    ', '     . .     '];
+const EPIC_AURAS = ['   .  .  .   ', '    . .. .   ', '   ..  ..    '];
+const LEGENDARY_AURAS = ['  * * * * *  ', ' *   * *   * ', '  * * * * *  '];
 function wrap(text: string, width: number): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
@@ -241,6 +245,7 @@ export function CompanionSprite(): React.ReactNode {
   }
   const frameCount = spriteFrameCount(companion.species);
   const heartFrame = petting ? PET_HEARTS[petAge % PET_HEARTS.length] : null;
+  const auraFrame = companion.shiny ? SHINY_AURAS[tick % SHINY_AURAS.length] : companion.rarity === 'legendary' ? LEGENDARY_AURAS[tick % LEGENDARY_AURAS.length] : companion.rarity === 'epic' ? EPIC_AURAS[tick % EPIC_AURAS.length] : companion.rarity === 'rare' ? RARE_AURAS[tick % RARE_AURAS.length] : null;
   let spriteFrame: number;
   let blink = false;
   if (reaction || petting) {
@@ -256,7 +261,7 @@ export function CompanionSprite(): React.ReactNode {
     }
   }
   const body = renderSprite(companion, spriteFrame).map(line => blink ? line.replaceAll(companion.eye, '-') : line);
-  const sprite = heartFrame ? [heartFrame, ...body] : body;
+  const sprite = [heartFrame, auraFrame, ...body].filter(Boolean) as string[];
 
   // Name row doubles as hint row — unfocused shows dim name + ↓ discovery,
   // focused shows inverse name. The enter-to-open hint lives in
@@ -264,7 +269,7 @@ export function CompanionSprite(): React.ReactNode {
   // sprite doesn't jump up when selected. flexShrink=0 stops the
   // inline-bubble row wrapper from squeezing the sprite to fit.
   const spriteColumn = <Box flexDirection="column" flexShrink={0} alignItems="center" width={colWidth}>
-      {sprite.map((line, i) => <Text key={i} color={i === 0 && heartFrame ? 'autoAccept' : color}>
+      {sprite.map((line, i) => <Text key={i} color={line === heartFrame ? 'autoAccept' : line === auraFrame ? companion.shiny ? 'autoAccept' : companion.rarity === 'legendary' ? 'warning' : companion.rarity === 'epic' ? 'permission' : 'inactive' : color}>
           {line}
         </Text>)}
       <Text italic bold={focused} dimColor={!focused} color={focused ? color : undefined} inverse={focused}>
