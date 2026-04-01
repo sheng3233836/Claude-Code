@@ -90,6 +90,7 @@
     "wrap-ansi": "*",
     "ws": "*",
     "xss": "*",
+    "openai": "*",
     "yaml": "*",
     "zod": "*",
     "color-diff-napi": "file:./shims/color-diff-napi",

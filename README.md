@@ -286,6 +286,83 @@ bun run dev:buddy      # 启动 CLI
 
 ---
 
+## OpenAI 兼容 Provider 支持
+
+> 源码位置：`src/services/api/openai-adapter.ts`、`src/services/api/client.ts`
+
+通过内置适配器层，支持接入任何 **OpenAI 兼容 API**（DeepSeek、Qwen/通义、vLLM、Ollama、one-api 等），无需外部代理。
+
+### 工作原理
+
+适配器在进程内完成 Anthropic Messages 协议 ↔ OpenAI Chat Completions 协议的双向翻译：
+
+```
+Claude Code → Anthropic 格式 → 内置适配器翻译 → OpenAI 格式 → DeepSeek/Qwen API
+                              ← 内置适配器翻译 ←
+```
+
+**对比外部代理方案**（CCSwitch、Claude Adapter 等需要额外进程 + 网络跳转），内置方案零额外开销、配置更简单、翻译精度更高。
+
+### 配置方式
+
+在 `~/.claude/settings.json`（全局）或 `.claude/settings.local.json`（项目级）中配置：
+
+```jsonc
+{
+  "env": {
+    "CLAUDE_CODE_USE_OPENAI": "1",
+    "OPENAI_API_KEY": "sk-your-key",
+    "OPENAI_BASE_URL": "https://api.deepseek.com/v1"
+  },
+  "model": "deepseek-chat"
+}
+```
+
+也可通过命令行环境变量启动：
+
+```bash
+CLAUDE_CODE_USE_OPENAI=1 \
+OPENAI_API_KEY=sk-xxx \
+OPENAI_BASE_URL=https://api.deepseek.com/v1 \
+ANTHROPIC_MODEL=deepseek-chat \
+bun run dev
+```
+
+### 环境变量
+
+| 变量 | 必填 | 说明 |
+|------|------|------|
+| `CLAUDE_CODE_USE_OPENAI` | 是 | 设为 `1` 启用 OpenAI 兼容模式 |
+| `OPENAI_API_KEY` | 是 | API 密钥 |
+| `OPENAI_BASE_URL` | 否 | API 端点地址（默认 `https://api.openai.com/v1`） |
+| `ANTHROPIC_MODEL` | 否 | 目标模型名（也可用 settings 的 `model` 字段或 `--model` 参数） |
+
+### 已验证的 Provider
+
+| Provider | Base URL | 推荐模型 |
+|----------|----------|---------|
+| DeepSeek | `https://api.deepseek.com/v1` | `deepseek-chat`、`deepseek-reasoner` |
+| 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus`、`qwen-max` |
+| OpenAI | `https://api.openai.com/v1` | `gpt-4o`、`o3-mini` |
+| Ollama 本地 | `http://localhost:11434/v1` | 取决于本地部署的模型 |
+| one-api / new-api | 自定义 | 取决于后端配置 |
+
+### 功能覆盖
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 基础对话 | ✅ | |
+| 流式输出 | ✅ | OpenAI SSE → Anthropic 流事件实时转换 |
+| Tool Calling | ✅ | 双向精确转换（tool_use ↔ function calling） |
+| 图片输入 | ✅ | Anthropic base64 → OpenAI image_url 自动转换 |
+| 模型切换 | ✅ | `/model` 命令可在同一端点的不同模型间切换 |
+| Extended Thinking | ⚠️ | 映射为 `reasoning_effort`，部分 Provider 不支持 |
+| Prompt Caching | ❌ | OpenAI 协议不支持，静默忽略 |
+| Server Tool Use | ❌ | Anthropic 服务端独有能力 |
+| Token 精确计数 | ❌ | 使用字符数粗估（~4 字符/token） |
+
+---
+
 ## 项目结构
 
 ```

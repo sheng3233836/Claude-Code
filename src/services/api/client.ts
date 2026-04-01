@@ -218,6 +218,22 @@ export async function getAnthropicClient({
     // we have always been lying about the return type - this doesn't support batching or models
     return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
   }
+  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_OPENAI)) {
+    const { createOpenAIAdapter } = await import('./openai-adapter.js')
+    const openaiApiKey = process.env.OPENAI_API_KEY
+    if (!openaiApiKey) {
+      throw new Error(
+        'OPENAI_API_KEY is required when CLAUDE_CODE_USE_OPENAI is enabled',
+      )
+    }
+    const openaiBaseURL = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'
+    return createOpenAIAdapter({
+      apiKey: openaiApiKey,
+      baseURL: openaiBaseURL,
+      defaultHeaders: defaultHeaders,
+      timeout: parseInt(process.env.API_TIMEOUT_MS || String(600 * 1000), 10),
+    })
+  }
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) {
     // Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired
     // This is similar to how we handle AWS credential refresh for Bedrock
